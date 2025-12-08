@@ -1,0 +1,35 @@
+# Configuration et environnement
+.env
+.env.local
+.env.*.local
+*.env
+
+# Fichiers personnels et guides internes (non destinés au dépôt public)
+GITHUB_GUIDE.md
+PLAN_COMMITS.md
+*.bat
+reconstruire_historique_git.py
+generer_historique_git.py
+
+# Logs
+logs/*.log
+logs/php_errors.log
+*.log
+
+# Dépendances PHP
+vendor/
+composer.lock
+
+# OS et éditeurs
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Sauvegardes
+*.bak
+*.tmp
+*.sql.gz
