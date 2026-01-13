@@ -1,0 +1,23 @@
+{
+    "name": "votenow/app",
+    "description": "Plateforme de vote universitaire sécurisée",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "paragonie/csrf-magic": "^1.0",
+        "vlucas/phpdotenv": "^5.5",
+        "monolog/monolog": "^3.0",
+        "phpmailer/phpmailer": "^6.8",
+        "league/csv": "^9.0",
+        "symfony/rate-limiter": "^6.0",
+        "ralouphie/getallheaders": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "VoteNow\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
