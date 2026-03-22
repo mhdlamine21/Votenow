@@ -1,0 +1,90 @@
+#  VoteNow v4 - Docker Compose 
+# Lancer avec : docker compose up -d
+# Arrêter avec : docker compose down
+# Reset complet : docker compose down -v (supprime aussi les volumes)
+
+services:
+
+  #  Application PHP + Apache 
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: votenow_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - .:/var/www/html
+      - ./logs:/var/www/html/logs
+    environment:
+      DB_HOST: mysql
+      DB_NAME: ${DB_NAME:-votenow4_db}
+      DB_USER: ${DB_USER:-votenow_user}
+      DB_PASS: ${DB_PASS:-votenow_pass}
+      APP_ENV: ${APP_ENV:-development}
+      APP_KEY: ${APP_KEY:-changeme_random_32chars}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - votenow_network
+
+  #  Base de données MySQL 
+  mysql:
+    image: mysql:8.0
+    container_name: votenow_db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-votenow4_db}
+      MYSQL_USER: ${DB_USER:-votenow_user}
+      MYSQL_PASSWORD: ${DB_PASS:-votenow_pass}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./test_data.sql:/docker-entrypoint-initdb.d/02_testdata.sql:ro
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - votenow_network
+
+  #  phpMyAdmin (admin DB) 
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: votenow_pma
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ${DB_USER:-votenow_user}
+      PMA_PASSWORD: ${DB_PASS:-votenow_pass}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - mysql
+    networks:
+      - votenow_network
+    profiles:
+      - dev   # Seulement en développement : docker compose --profile dev up -d
+
+#  Volumes persistants 
+volumes:
+  mysql_data:
+    driver: local
+
+#  Réseau interne 
+networks:
+  votenow_network:
+    driver: bridge
