@@ -1,0 +1,284 @@
+﻿# ─── VoteNow v4 - CI/CD Pipeline ────────────────────────────────────────────
+# Fichier : .github/workflows/ci.yml
+# Déclenché sur : push main, push develop, pull requests vers main
+
+name: CI/CD VoteNow
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 1 - Vérification syntaxe PHP
+  # ─────────────────────────────────────────────────────────────────────────
+  lint-php:
+    name: Lint PHP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo, pdo_mysql, fileinfo, gd
+
+      - name: Verifier syntaxe PHP - fichiers principaux
+        run: |
+          echo "=== Verification syntaxe PHP ==="
+          find . -name "*.php" \
+            -not -path "*/vendor/*" \
+            -not -path "*/node_modules/*" \
+            | xargs -I {} php -l {} \
+            && echo "Tous les fichiers PHP sont syntaxiquement corrects."
+
+      - name: Verifier que .env n'est pas committe
+        run: |
+          if git ls-files | grep -q "^\.env$"; then
+            echo "ERREUR : .env est committe ! Retirer du repo."
+            exit 1
+          fi
+          echo "OK : .env absent du repo."
+
+      - name: Verifier que les passwords de test ne sont pas dans le code
+        run: |
+          # Vérifier que les passwords de test ne sont pas hardcodés en dehors de test_data.sql
+          if grep -rn "password123\|admin123\|test123" \
+            --include="*.php" \
+            --exclude-dir=vendor \
+            | grep -v "test_data.sql" \
+            | grep -v "#" \
+            | grep -v "//"; then
+            echo "ATTENTION : Mot de passe test potentiellement hardcode dans du code PHP."
+          else
+            echo "OK : Aucun mot de passe test hardcode detecte."
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 2 - Validation SQL
+  # ─────────────────────────────────────────────────────────────────────────
+  validate-sql:
+    name: Validate SQL
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_test
+          MYSQL_DATABASE: votenow_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verifier que database.sql existe
+        run: |
+          test -f database.sql && echo "OK : database.sql present" || (echo "ERREUR : database.sql manquant" && exit 1)
+
+      - name: Importer le schema SQL
+        run: |
+          mysql -h 127.0.0.1 -u root -proot_test votenow_test < database.sql
+          echo "OK : Schema SQL importe sans erreur."
+
+      - name: Verifier les 15 tables attendues
+        run: |
+          TABLES=$(mysql -h 127.0.0.1 -u root -proot_test votenow_test -e "SHOW TABLES;" -s --skip-column-names | tr '\n' ' ')
+          echo "Tables trouvees : $TABLES"
+          for TABLE in ufr filieres niveaux_filiere etudiants_autorises utilisateurs admins elections candidatures votes participations notifications logs demandes_profil parametres; do
+            if echo "$TABLES" | grep -qw "$TABLE"; then
+              echo "OK : table $TABLE"
+            else
+              echo "ERREUR : table $TABLE manquante"
+              exit 1
+            fi
+          done
+          echo "Toutes les tables sont presentes."
+
+      - name: Importer les donnees de test
+        run: |
+          mysql -h 127.0.0.1 -u root -proot_test votenow_test < test_data.sql
+          echo "OK : Donnees de test importees."
+
+      - name: Verifier les donnees de test (super admin)
+        run: |
+          COUNT=$(mysql -h 127.0.0.1 -u root -proot_test votenow_test -e "SELECT COUNT(*) FROM admins WHERE username='superadmin';" -s --skip-column-names)
+          if [ "$COUNT" = "1" ]; then
+            echo "OK : Compte superadmin present."
+          else
+            echo "ERREUR : Compte superadmin absent."
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 3 - Build Docker
+  # ─────────────────────────────────────────────────────────────────────────
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [lint-php, validate-sql]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Creer .env pour le build
+        run: |
+          cp .env.example .env
+          echo "APP_ENV=ci" >> .env
+
+      - name: Build image Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: votenow:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test integration avec Docker Compose
+        run: |
+          docker compose up -d mysql php
+          echo "Attente demarrage..."
+          sleep 20
+          # Verifier que l'app repond
+          curl -f http://localhost:8080 \
+            && echo "OK : Application accessible." \
+            || (echo "ERREUR : Application inaccessible" && docker compose logs && exit 1)
+          docker compose down
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 4 - Tests PHP (si vendor/phpunit existe)
+  # ─────────────────────────────────────────────────────────────────────────
+  tests-php:
+    name: Tests PHPUnit
+    runs-on: ubuntu-latest
+    needs: [lint-php]
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_test
+          MYSQL_DATABASE: votenow_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo, pdo_mysql, fileinfo, gd
+          coverage: xdebug
+
+      - name: Initialiser la base de test
+        run: |
+          mysql -h 127.0.0.1 -u root -proot_test votenow_test < database.sql
+          mysql -h 127.0.0.1 -u root -proot_test votenow_test < test_data.sql
+
+      - name: Creer .env de test
+        run: |
+          cat > .env << EOF
+          DB_HOST=127.0.0.1
+          DB_NAME=votenow_test
+          DB_USER=root
+          DB_PASS=root_test
+          APP_ENV=testing
+          APP_KEY=test_key_32_characters_minimum_x
+          EOF
+
+      - name: Lancer les tests PHPUnit (si disponibles)
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --testdox --coverage-text
+          else
+            echo "PHPUnit non installe - tests unitaires a ajouter en v5."
+            echo "Verifications manuelles a effectuer :"
+            echo "  - Vote double onglet (anti-doublon SELECT FOR UPDATE)"
+            echo "  - Import CSV 1000+ lignes (upsert)"
+            echo "  - Election 2eme tour (qualification auto)"
+            echo "  - Anonymisation RGPD (votes conserves)"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 5 - Déploiement (seulement sur push main)
+  # ─────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-docker, tests-php]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    environment:
+      name: production
+      url: ${{ secrets.PRODUCTION_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login Docker Hub (optionnel - si on push l'image)
+        if: ${{ secrets.DOCKER_USERNAME != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Push image Docker Hub
+        if: ${{ secrets.DOCKER_USERNAME != '' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/votenow:latest
+            ${{ secrets.DOCKER_USERNAME }}/votenow:${{ github.sha }}
+
+      - name: Deployer sur serveur via SSH
+        if: ${{ secrets.SERVER_HOST != '' }}
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            cd /var/www/votenow
+            git pull origin main
+            docker compose pull
+            docker compose up -d --no-deps php
+            docker compose exec -T php php scripts/setup.php
+            echo "Deploiement termine : $(date)"
+
+      - name: Notification deploiement
+        if: always()
+        run: |
+          echo "Deploiement sur ${{ secrets.PRODUCTION_URL }}"
+          echo "Commit : ${{ github.sha }}"
+          echo "Auteur : ${{ github.actor }}"
+          echo "Status : ${{ job.status }}"
