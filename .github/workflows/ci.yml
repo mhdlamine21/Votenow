@@ -48,7 +48,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root_test
-          MYSQL_DATABASE: votenow_test
+          MYSQL_DATABASE: votenow_db
         ports:
           - 3306:3306
         options: >-
@@ -66,13 +66,17 @@ jobs:
           test -f database.sql && echo "OK : database.sql present" || (echo "ERREUR : database.sql manquant" && exit 1)
 
       - name: Importer le schema SQL
+        env:
+          MYSQL_PWD: root_test
         run: |
-          mysql -h 127.0.0.1 -u root -proot_test votenow_test < database.sql
+          mysql -h 127.0.0.1 -u root votenow_db < database.sql
           echo "OK : Schema SQL importe avec succes."
 
       - name: Verifier les tables principales
+        env:
+          MYSQL_PWD: root_test
         run: |
-          TABLES=$(mysql -h 127.0.0.1 -u root -proot_test votenow_test -e "SHOW TABLES;" -s --skip-column-names | tr '\n' ' ')
+          TABLES=$(mysql -h 127.0.0.1 -u root votenow_db -e "SHOW TABLES;" -s --skip-column-names | tr '\n' ' ')
           echo "Tables detectees : $TABLES"
           for TABLE in ufr filieres niveaux_filiere etudiants_autorises utilisateurs admins elections candidatures votes participations notifications logs demandes_profil settings decision_admin; do
             if echo "$TABLES" | grep -qw "$TABLE"; then
@@ -85,13 +89,17 @@ jobs:
           echo "Toutes les tables requises sont presentes."
 
       - name: Importer les donnees de test
+        env:
+          MYSQL_PWD: root_test
         run: |
-          mysql -h 127.0.0.1 -u root -proot_test votenow_test < test_data.sql
+          mysql -h 127.0.0.1 -u root votenow_db < test_data.sql
           echo "OK : Donnees de test importees avec succes."
 
       - name: Verifier les donnees de test
+        env:
+          MYSQL_PWD: root_test
         run: |
-          COUNT=$(mysql -h 127.0.0.1 -u root -proot_test votenow_test -e "SELECT COUNT(*) FROM admins WHERE username='superadmin';" -s --skip-column-names)
+          COUNT=$(mysql -h 127.0.0.1 -u root votenow_db -e "SELECT COUNT(*) FROM admins WHERE username='superadmin';" -s --skip-column-names)
           if [ "$COUNT" = "1" ]; then
             echo "OK : Compte superadmin present."
           else
@@ -109,7 +117,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root_test
-          MYSQL_DATABASE: votenow_test
+          MYSQL_DATABASE: votenow_db
         ports:
           - 3306:3306
         options: >-
@@ -129,15 +137,17 @@ jobs:
           extensions: pdo, pdo_mysql, fileinfo, gd
 
       - name: Initialiser la base de test
+        env:
+          MYSQL_PWD: root_test
         run: |
-          mysql -h 127.0.0.1 -u root -proot_test votenow_test < database.sql
-          mysql -h 127.0.0.1 -u root -proot_test votenow_test < test_data.sql
+          mysql -h 127.0.0.1 -u root votenow_db < database.sql
+          mysql -h 127.0.0.1 -u root votenow_db < test_data.sql
 
       - name: Creer .env de test
         run: |
           cat > .env << 'EOF'
           DB_HOST=127.0.0.1
-          DB_NAME=votenow_test
+          DB_NAME=votenow_db
           DB_USER=root
           DB_PASS=root_test
           APP_ENV=testing
