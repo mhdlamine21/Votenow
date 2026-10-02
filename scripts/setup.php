@@ -4,7 +4,7 @@
  * Usage : php scripts/setup.php
  */
 
-echo "\n=== VoteNow - Setup ===\n\n";
+echo "\n[VoteNow] Initialisation et Setup\n\n";
 
 // Charger variables d'environnement
 $env_file = __DIR__ . '/../.env';
@@ -70,7 +70,7 @@ echo "4. Verification compte superadmin... ";
 $admin = $pdo->query("SELECT id FROM admins WHERE username='superadmin' LIMIT 1")->fetch();
 echo $admin ? "OK\n" : "ABSENT (verifier test_data.sql)\n";
 
-echo "\n=== Setup termine ===\n";
+echo "\n[VoteNow] Configuration terminee avec succes\n";
 echo "Application disponible sur http://localhost:8080\n";
 echo "Comptes de test :\n";
 echo "  - superadmin / password\n";

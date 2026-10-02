@@ -1,8 +1,6 @@
--- ============================================================
--- VoteNow - Données de test complètes
--- Tous les scénarios : élections, votes, résultats, 2ème tour
--- Importer APRÈS database.sql
--- ============================================================
+-- VoteNow - Donnees de test completes
+-- Tous les scenarios : elections, votes, resultats, 2eme tour
+-- Importer APRES database.sql
 
 USE votenow_db;
 

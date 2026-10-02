@@ -107,7 +107,7 @@ if ($method === 'POST') {
             jsonOut(['success' => false, 'message' => 'Identifiant requis.']);
         }
 
-        // --- DEMONSTRATION VULNERABILITE SQL INJECTION (Module Securite Web) ---
+        // Demonstration de la vulnerabilite SQL Injection (Module Securite Web)
         // Payload de demo : ' OR 1=1#
         // Code vulnerable par concatenation directe demontre en cours :
         // $sql = "SELECT * FROM admins WHERE username = '$username' AND password = '$password' LIMIT 1";
@@ -175,7 +175,7 @@ if ($method === 'POST') {
             jsonOut(['success' => false, 'message' => 'Identifiants requis.']);
         }
 
-        // --- DEMONSTRATION VULNERABILITE SQL INJECTION (Module Securite Web) ---
+        // Demonstration de la vulnerabilite SQL Injection (Module Securite Web)
         // Payload de demo : ' OR 1=1#
         $isSqlInjection = (strpos($carte, "'") !== false && (stripos($carte, "1=1") !== false || stripos($carte, "OR") !== false));
 
