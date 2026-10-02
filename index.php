@@ -1,8 +1,8 @@
 <?php
 /**
- * votenow v4 - front controller
- * direction 3 (pulse) etudiants + direction 2 (command) admin
- * signature: 2-space indent, snake_case php, camelCase js */
+ * VoteNow - Front Controller
+ * Direction 3 (pulse) étudiants + Direction 2 (command) admin
+ * Signature: 2-space indent, snake_case php, camelCase js */
 
 require_once 'config/database.php';
 secureSessionStart();

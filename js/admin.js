@@ -1,7 +1,7 @@
 /**
- * votenow v4 - module admin (direction 2 - command)
- * sidebar + tableau dense + filtres chips + pagination + alertes
- * signature: 2-space indent, camelCase fonctions, snake_case vars locales */
+ * VoteNow - Module Admin
+ * Sidebar + Tableau dense + Filtres chips + Pagination + Alertes
+ * Signature: 2-space indent, camelCase fonctions, snake_case vars locales */
 
 "use strict";
 

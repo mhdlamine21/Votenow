@@ -4,12 +4,9 @@
 .env.*.local
 *.env
 
-# Fichiers personnels et guides internes (non destinés au dépôt public)
-GITHUB_GUIDE.md
+# Fichiers personnels et temporaires
 PLAN_COMMITS.md
 *.bat
-reconstruire_historique_git.py
-generer_historique_git.py
 
 # Logs
 logs/*.log

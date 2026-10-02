@@ -1,7 +1,7 @@
 /**
- * votenow v4 - utilitaires JS
- * fonctions communes : api(), toast(), skeleton(), esc(), etc.
- * signature: 2-space indent, camelCase fonctions, snake_case vars locales, double quotes */
+ * VoteNow - Utilitaires JS
+ * Fonctions communes : api(), toast(), skeleton(), esc(), etc.
+ * Signature: 2-space indent, camelCase fonctions, snake_case vars locales, double quotes */
 
 "use strict";
 

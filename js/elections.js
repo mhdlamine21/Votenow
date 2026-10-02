@@ -1,7 +1,7 @@
 /**
- * votenow v4 - module elections & vote
- * direction 3 (pulse) : cartes avec compte à rebours + barre participation
- * signature: 2-space indent, camelCase fonctions, snake_case vars locales */
+ * VoteNow - Module Élections & Vote
+ * Direction 3 (pulse) : Cartes avec compte à rebours + barre participation
+ * Signature: 2-space indent, camelCase fonctions, snake_case vars locales */
 
 "use strict";
 

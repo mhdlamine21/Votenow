@@ -25,13 +25,10 @@ Le projet **VoteNow** s'inscrit dans un continuum pédagogique au sein de notre 
    * Examen individuel pratique assigné à toute la promotion de Licence 2. Chaque étudiant devait concevoir sa propre application de vote électronique.
    * L'application **VoteNow V1** a été conçue et développée individuellement par **[Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com)** selon les contraintes du sujet : 100% frontend en **HTML5, CSS3 et JavaScript Vanilla**, avec stockage local des votes dans le **LocalStorage**.
 
-2. **Semestre 4 (Mars - Avril 2026) - Cours d'Introduction à la Sécurité** :
+2. **Semestre 4 (Mars - Avril 2026) - Cours d'Introduction à la Sécurité (VoteNow V2 - Version Finale)** :
    * Notre enseignant a assigné par groupe de 3 le thème : **« Sécurité d'une application web »**, sans imposer d'application spécifique.
    * Notre groupe ([Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com), [Papa Mangone GUEYE](mailto:pmangone.gueye@univ-thies.sn) et [Mamadou SY](mailto:mamadou.sy7@univ-thies.sn)) a alors choisi de retenir la version VoteNow de Mouhamadou Lamine NIANG issue du semestre 3 comme point de départ.
-   * Nous l'avons migrée et enrichie avec un backend complet en **PHP & MySQL** afin d'y introduire une architecture client/serveur, de l'auditer avec des outils professionnels (notamment **OWASP ZAP**), de reproduire concrètement les failles majeures du Web et de concevoir les correctifs de durcissement.
-
-3. **Modernisation récente (Août 2026)** :
-   * Intégration de conteneurs **Docker & Docker Compose** pour automatiser le déploiement instantané du banc d'essai (PHP 8, MySQL 8, phpMyAdmin).
+   * Nous l'avons migrée et enrichie avec un backend complet en **PHP & MySQL** afin d'aboutir à **VoteNow V2**, introduire une architecture client/serveur robuste, l'auditer avec des outils professionnels (notamment **OWASP ZAP**), reproduire concrètement les failles majeures du Web et concevoir l'ensemble des correctifs de durcissement.
 
 ---
 

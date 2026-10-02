@@ -9,7 +9,6 @@ _De l'application Frontend au Banc d'Essai d'Audit de Sécurité Applicative (OW
 
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B%20%7C%208.x-777BB4?style=flat-square&logo=php&logoColor=white)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B%20%7C%20MariaDB-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://mysql.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 [![OWASP ZAP](https://img.shields.io/badge/Audit-OWASP%20ZAP-orange?style=flat-square&logo=owasp)](https://www.zaproxy.org/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
@@ -31,24 +30,20 @@ _De l'application Frontend au Banc d'Essai d'Audit de Sécurité Applicative (OW
 
 Ce dépôt retrace l'évolution complète d'un projet étudiant sur deux semestres consécutifs à l'**Université Iba Der Thiam de Thiès (UIDT)** :
 
-### 1. Phase 1 - Décembre 2024 (Semestre 3, L2 - Examen de Développement Web 1)
+### 1. VoteNow V1 - Décembre 2024 (Semestre 3, L2 - Examen de Développement Web 1)
 
 - **Cadre :** Examen individuel pratique assigné à toute la promotion de Licence 2. Chaque étudiant devait concevoir sa propre application de vote.
 - **Réalisation :** L'application **VoteNow V1** conçue et développée individuellement par [Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com), respectant la contrainte stricte d'utiliser **uniquement HTML, CSS et JavaScript Vanilla**, avec stockage local dans le `localStorage` du navigateur.
 - 📄 *Voir la documentation complète de cette phase initiale dans [docs/README_V1.md](docs/README_V1.md).*
 
-### 2. Phase 2 - Mars à Avril 2026 (Semestre 4, L2 - Cours : Introduction à la Sécurité)
+### 2. VoteNow V2 - Mars à Avril 2026 (Semestre 4, L2 - Cours : Introduction à la Sécurité)
 
 - **Équipe de 3 étudiants :** [Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com), [Papa Mangone GUEYE](mailto:pmangone.gueye@univ-thies.sn) et [Mamadou SY](mailto:mamadou.sy7@univ-thies.sn).
 - **Thème assigné :** **« Sécurité d'une application web »**.
-- **Démarche du groupe :** Le professeur n'ayant pas imposé d'application spécifique, notre groupe a choisi de retenir l'application VoteNow de Mouhamadou Lamine NIANG comme socle de travail. Nous l'avons fait évoluer avec un backend en **PHP & MySQL** afin d'en faire notre laboratoire réel d'audit et d'expérimentation pour :
+- **Démarche du groupe :** Le professeur n'ayant pas imposé d'application spécifique, notre groupe a choisi de retenir l'application VoteNow de Mouhamadou Lamine NIANG comme socle de travail. Nous l'avons fait évoluer vers une **version 2 finale avec un backend complet en PHP & MySQL** afin d'en faire notre laboratoire réel d'audit et d'expérimentation pour :
   1. Auditer l'application à l'aide d'**OWASP ZAP**.
   2. Démontrer concrètement les failles détectées (Injection SQL, XSS, CSRF).
   3. Implémenter et documenter les contre-mesures de durcissement (requêtes préparées, encodage contextuel, jetons anti-CSRF, Bcrypt, sessions strictes).
-
-### 3. Phase 3 - Août 2026 (Modernisation & Conteneurisation)
-
-- Ajout d'un environnement **Docker & Docker Compose** complet (PHP 8.2 Apache, MySQL 8.0, phpMyAdmin) et scripts CI/CD pour faciliter le déploiement immédiat du laboratoire de test.
 
 ---
 
@@ -94,44 +89,32 @@ Lors de notre soutenance orale, nous avons illustré le rôle du scanner **OWASP
 
 ---
 
-## 🚀 Démarrage Rapide
+## 🚀 Démarrage Rapide (Serveur Local PHP & MySQL)
 
-### Option A - Avec Docker (Ajout récent Août 2026)
+### 1. Configuration de l'environnement
 
+1. Cloner le dépôt et copier la configuration d'exemple :
+   ```bash
+   cp .env.example .env
+   ```
+2. Éditer le fichier `.env` si nécessaire avec vos paramètres de base de données.
+
+### 2. Base de Données
+
+1. Assurez-vous que le service MySQL (ou MariaDB / XAMPP / WampServer) est démarré.  
+2. Importer le schéma de base de données et les données de test :
+   ```bash
+   mysql -u root -p votenow_db < database.sql
+   mysql -u root -p votenow_db < test_data.sql
+   ```
+
+### 3. Lancement du Serveur
+
+Lancer le serveur de développement PHP :
 ```bash
-# 1. Cloner le dépôt
-git clone https://github.com/mhdlamine21/Votenow.git
-cd Votenow
-
-# 2. Configurer les variables d'environnement
-cp .env.example .env
-
-# 3. Démarrer les conteneurs (PHP + Apache, MySQL, phpMyAdmin)
-docker compose up -d
-
-# 4. Initialiser la base de données de test
-docker compose exec php php scripts/setup.php
+php -S localhost:8000
 ```
-
-- **Application Web :** [http://localhost:8080](http://localhost:8080)
-- **phpMyAdmin :** [http://localhost:8081](http://localhost:8081)
-
----
-
-### Option B - Serveur Local (PHP & MySQL / XAMPP)
-
-1. Assurez-vous que le service MySQL est démarré.  
-   _(Mot de passe configuré dans le projet : `778512692`)_.
-2. Importer le schéma de base de données :
-   ```bash
-   mysql -u root -p778512692 votenow_db < database.sql
-   mysql -u root -p778512692 votenow_db < test_data.sql
-   ```
-3. Lancer le serveur de développement PHP :
-   ```bash
-   php -S localhost:8000
-   ```
-4. Ouvrir [http://localhost:8000](http://localhost:8000) dans votre navigateur.
+Ouvrir [http://localhost:8000](http://localhost:8000) dans votre navigateur.
 
 ---
 
@@ -150,9 +133,9 @@ docker compose exec php php scripts/setup.php
 
 - **Frontend :** HTML5 sémantique, CSS3 (Glassmorphism, Dark/Light mode, animations), JavaScript ES6+ Vanilla
 - **Backend :** PHP 7.4+ / 8.x (Architecture modulaire REST API, PDO, Bcrypt, Sessions sécurisées)
-- **Base de Données :** MySQL 5.7+ / 8.0 avec intégrité référentielle et contraintes d'unicité
+- **Base de Données :** MySQL 5.7+ / 8.0 (Intégrité référentielle, transactions et contraintes d'unicité)
 - **Audit de Sécurité :** OWASP ZAP (Zed Attack Proxy)
-- **Infrastructure :** Docker, Docker Compose, Apache 2.4, GitHub Actions CI
+- **Environnement Serveur :** Apache / Serveur Web intégré PHP
 
 ---
 

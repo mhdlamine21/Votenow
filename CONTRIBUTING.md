@@ -1,4 +1,4 @@
-# Guide de contribution - VoteNow v4
+# Guide de contribution - VoteNow
 
 ## Bienvenue
 
@@ -36,7 +36,7 @@ Utiliser le format Conventional Commits :
 - Branche depuis `develop` (pas directement depuis `main`)
 - Décrire clairement le changement et son impact
 - Mentionner les issues liées avec `Fixes #123`
-- S'assurer que la CI passe avant de demander une review
+- S'assurer que les vérifications et tests passent avant de demander une review
 
 ### 5. Signaler un bug
 

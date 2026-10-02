@@ -1,11 +1,10 @@
 <?php
 /**
- * votenow v4 - script d'initialisation
+ * VoteNow - script d'initialisation
  * Usage : php scripts/setup.php
- * Lance après docker compose up -d pour vérifier que tout est OK
  */
 
-echo "\n=== VoteNow v4 - Setup ===\n\n";
+echo "\n=== VoteNow - Setup ===\n\n";
 
 // Charger variables d'environnement
 $env_file = __DIR__ . '/../.env';
@@ -19,10 +18,10 @@ if (file_exists($env_file)) {
   }
 }
 
-$host = getenv('DB_HOST') ?: 'mysql';
-$name = getenv('DB_NAME') ?: 'votenow4_db';
-$user = getenv('DB_USER') ?: 'votenow_user';
-$pass = getenv('DB_PASS') ?: 'votenow_pass';
+$host = getenv('DB_HOST') ?: 'localhost';
+$name = getenv('DB_NAME') ?: 'votenow_db';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: '';
 
 // Test connexion
 echo "1. Test connexion MySQL ({$host})... ";

@@ -21,14 +21,12 @@ Ce projet de sécurité web a été réalisé en groupe de trois étudiants dans
 ### 1. La Genèse : Du Projet Web 1 au Laboratoire de Sécurité
 * **Semestre 3 (Décembre 2024) - Examen de Dév Web 1** :  
   L'application **VoteNow V1** est née dans le cadre de l'examen individuel pratique assigné à toute la promotion de Licence 2. Conçue et développée individuellement par **[Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com)** exclusivement en **HTML, CSS moderne et JavaScript Vanilla (avec LocalStorage)**, elle offrait une interface soignée pour le vote étudiant, mais sans backend persistant ni garanties de sécurité serveur.
-* **Semestre 4 (Mars - Avril 2026) - Introduction à la Sécurité** :  
+* **Semestre 4 (Mars - Avril 2026) - Introduction à la Sécurité (VoteNow V2 - Version Finale)** :  
   Dans le cadre de l'évaluation semestrielle, notre enseignant nous a confié un travail pratique par groupe de 3 ([Mouhamadou Lamine NIANG](mailto:mouhamedlniang@gmail.com), [Papa Mangone GUEYE](mailto:pmangone.gueye@univ-thies.sn), [Mamadou SY](mailto:mamadou.sy7@univ-thies.sn)) sur le thème : **« Sécurité d'une application web »**.  
-  L'enseignant n'ayant pas imposé d'application, notre équipe a choisi de retenir la version VoteNow de Mouhamadou Lamine NIANG pour lui développer un backend complet en **PHP & MySQL** et en faire notre laboratoire réel d'audit pour :
+  L'enseignant n'ayant pas imposé d'application, notre équipe a choisi de retenir la version VoteNow de Mouhamadou Lamine NIANG pour lui développer un backend complet en **PHP & MySQL (VoteNow V2)** et en faire notre laboratoire réel d'audit pour :
   1. Identifier les failles courantes du Web (Top 10 OWASP) grâce à l'outil **OWASP ZAP**.
   2. Démontrer concrètement les attaques et évaluer leur impact opérationnel.
   3. Implémenter et documenter les contre-mesures techniques adaptées.
-* **Modernisation récente (Août 2026)** :  
-  Conteneurisation via **Docker & Docker Compose** pour assurer la reproductibilité immédiate de l'environnement de test, des bases de données et des outils d'audit.
 
 ---
 

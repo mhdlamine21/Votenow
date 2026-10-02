@@ -1,5 +1,5 @@
 -- ============================================================
--- VoteNow v3 - Données de test complètes
+-- VoteNow - Données de test complètes
 -- Tous les scénarios : élections, votes, résultats, 2ème tour
 -- Importer APRÈS database.sql
 -- ============================================================
